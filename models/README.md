@@ -7,6 +7,7 @@
 | [DeepSeek V3](./deepseek_v3) | MLA+MoE | 671B/37B | 128K | 2024年12月 |
 | [Kimi K2](./kimi_k_2) | MLA+MoE | 1T/32B | 128K | 2025年7月 |
 | [DeepSeek V3.2](./deepseek_v3_2) | MLA+DSA | 685B级 | 128K | 2025年12月 |
+| [DeepSeek V4](./deepseek_v4) | Hybrid Attention(CSA+HCA)+MoE+mHC | 1.6T/49B（Pro）；284B/13B（Flash） | 1M | 2026年4月 |
 | [Kimi K2.5](./kimi_k_2_5) | MLA+MoE+MoonViT | 1T/32B | 256K | 2026年1月 |
 | [GLM 5](./glm_5) | MLA(DSA)+MoE | 744B/40B | 200K | 2026年2月 |
 | [MiniMax M2.5](./minimax_m_2_5) | GQA+MoE | 229B/10B | 200K | 2026年2月 |
@@ -32,6 +33,12 @@
 
 <p style="text-align: center;">
   <img src="deepseek_v3_2/deepseek_v3_2_architecture.jpg" alt="DeepSeek V3.2架构图" />
+</p>
+
+- [DeepSeek V4模型卡片](./deepseek_v4)
+
+<p style="text-align: center;">
+  <img src="deepseek_v4/deepseek_v4_architecture.jpg" alt="DeepSeek V4架构图" />
 </p>
 
 - [Kimi K2.5模型卡片](./kimi_k_2_5)
