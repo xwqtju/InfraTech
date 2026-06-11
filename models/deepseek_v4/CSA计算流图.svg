@@ -1,0 +1,268 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2600" height="1780" viewBox="0 0 2600 1780">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#333"/>
+    </marker>
+    <marker id="greenArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#62a334"/>
+    </marker>
+    <marker id="purpleArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#6d3bb5"/>
+    </marker>
+    <style>
+      .title { font-family: Arial, "PingFang SC", sans-serif; font-size: 48px; font-weight: 800; fill: #151515; }
+      .subtitle { font-family: Arial, "PingFang SC", sans-serif; font-size: 24px; fill: #555; }
+      .group-title { font-family: Arial, "PingFang SC", sans-serif; font-size: 32px; font-weight: 800; }
+      .label { font-family: Arial, "PingFang SC", sans-serif; font-size: 23px; fill: #fff; }
+      .small { font-family: Arial, "PingFang SC", sans-serif; font-size: 18px; fill: #222; }
+      .tiny { font-family: Arial, "PingFang SC", sans-serif; font-size: 16px; fill: #333; }
+      .note { font-family: Arial, "PingFang SC", sans-serif; font-size: 19px; fill: #444; }
+      .orange { fill: #ff9f1a; stroke: #f08b00; stroke-width: 2; }
+      .blue { fill: #7b93f4; stroke: #6278d9; stroke-width: 2; }
+      .cyan { fill: #58d0c4; stroke: #37afa3; stroke-width: 2; }
+      .green { fill: #91d64b; stroke: #70b92e; stroke-width: 2; }
+      .red { fill: #fa1b1b; stroke: #d31313; stroke-width: 2; }
+      .purple { fill: #7533ad; stroke: #5b208e; stroke-width: 2; }
+      .state { fill: #bcc8ff; stroke: #6d79bf; stroke-width: 2; }
+      .soft { fill: #fff8ef; stroke: #ff9f1a; stroke-width: 3; stroke-dasharray: 12 10; }
+      .bluebox { fill: #f2f6ff; stroke: #7b93f4; stroke-width: 3; stroke-dasharray: 12 10; }
+      .greenbox { fill: #f8fff0; stroke: #91d64b; stroke-width: 3; stroke-dasharray: 12 10; }
+      .purplebox { fill: #fbf7ff; stroke: #7533ad; stroke-width: 3; stroke-dasharray: 12 10; }
+      .blackbox { fill: #fff; stroke: #333; stroke-width: 3; stroke-dasharray: 12 10; }
+      .arrow { stroke: #333; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .thin { stroke: #333; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .greenLine { stroke: #62a334; stroke-width: 3; fill: none; marker-end: url(#greenArrow); }
+      .purpleLine { stroke: #6d3bb5; stroke-width: 3; fill: none; marker-end: url(#purpleArrow); }
+      .dashed { stroke-dasharray: 9 8; }
+      .tensor { fill: #ffc1c1; stroke: #25304f; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="2600" height="1780" fill="#ffffff"/>
+  <text x="1300" y="70" text-anchor="middle" class="title">CSA 计算流图（Compressed Sparse Attention）</text>
+  <text x="1300" y="110" text-anchor="middle" class="subtitle">DeepSeek V4 风格：压缩 KV + Indexer Top-k + Window KV + MQA Attention</text>
+
+  <!-- high-level backbone -->
+  <rect x="60" y="155" width="2460" height="150" rx="20" class="blackbox"/>
+  <text x="90" y="198" class="group-title" fill="#222">Transformer Block 内部位置</text>
+  <rect x="210" y="220" width="220" height="56" rx="12" class="blue"/>
+  <text x="320" y="256" text-anchor="middle" class="label">hc_pre</text>
+  <rect x="520" y="220" width="230" height="56" rx="12" class="blue"/>
+  <text x="635" y="256" text-anchor="middle" class="label">RMSNorm</text>
+  <rect x="840" y="210" width="360" height="76" rx="14" class="orange"/>
+  <text x="1020" y="242" text-anchor="middle" class="label">CSA / HCA / SWA</text>
+  <text x="1020" y="270" text-anchor="middle" class="tiny" fill="#fff">本图展开 CSA 分支</text>
+  <rect x="1300" y="220" width="220" height="56" rx="12" class="blue"/>
+  <text x="1410" y="256" text-anchor="middle" class="label">hc_post</text>
+  <rect x="1605" y="220" width="230" height="56" rx="12" class="blue"/>
+  <text x="1720" y="256" text-anchor="middle" class="label">MoE</text>
+  <rect x="1920" y="220" width="230" height="56" rx="12" class="blue"/>
+  <text x="2035" y="256" text-anchor="middle" class="label">LM Head</text>
+  <path d="M430 248 H520" class="arrow"/>
+  <path d="M750 248 H840" class="arrow"/>
+  <path d="M1200 248 H1300" class="arrow"/>
+  <path d="M1520 248 H1605" class="arrow"/>
+  <path d="M1835 248 H1920" class="arrow"/>
+  <text x="425" y="210" class="small">[seq_len, hidden_size]</text>
+
+  <!-- CSA outer group -->
+  <rect x="70" y="350" width="2460" height="1370" rx="24" class="soft"/>
+  <text x="105" y="400" class="group-title" fill="#ed8a00">CSA 主计算路径</text>
+  <text x="105" y="435" class="note">典型参数：hidden_size=7168, heads=128, head_dim=512, rope_head_dim=64, q_lora_rank=1536, o_groups=16, o_lora_rank=1024, index_topk=1024, window_size=128</text>
+
+  <!-- Q path -->
+  <rect x="120" y="500" width="520" height="520" rx="18" class="bluebox"/>
+  <text x="150" y="545" class="group-title" fill="#6b83e8">Q 路径</text>
+  <rect x="245" y="590" width="270" height="58" rx="12" class="orange"/>
+  <text x="380" y="626" text-anchor="middle" class="label">Linear(Q down_proj)</text>
+  <text x="530" y="625" class="small">[1, q_lora_rank]</text>
+  <rect x="260" y="700" width="240" height="58" rx="12" class="orange"/>
+  <text x="380" y="736" text-anchor="middle" class="label">RMSNorm</text>
+  <rect x="245" y="810" width="270" height="58" rx="12" class="orange"/>
+  <text x="380" y="846" text-anchor="middle" class="label">Linear(Q up_proj)</text>
+  <text x="530" y="846" class="small">[1, heads, head_dim]</text>
+  <rect x="260" y="920" width="240" height="58" rx="12" class="orange"/>
+  <text x="380" y="956" text-anchor="middle" class="label">Q head Norm</text>
+  <path d="M380 648 V700" class="arrow"/>
+  <path d="M380 758 V810" class="arrow"/>
+  <path d="M380 868 V920" class="arrow"/>
+  <text x="160" y="585" class="small">输入 h</text>
+  <path d="M175 595 H245" class="arrow"/>
+  <rect x="740" y="920" width="190" height="58" rx="12" class="orange"/>
+  <text x="835" y="956" text-anchor="middle" class="label">RoPE</text>
+  <path d="M500 949 H740" class="arrow"/>
+  <rect x="1010" y="920" width="150" height="58" rx="12" class="orange"/>
+  <text x="1085" y="956" text-anchor="middle" class="label">Q</text>
+  <path d="M930 949 H1010" class="arrow"/>
+  <text x="1000" y="900" class="small">[1, 128, 512]</text>
+
+  <!-- Compressor -->
+  <rect x="120" y="1065" width="880" height="580" rx="18" class="bluebox"/>
+  <text x="150" y="1110" class="group-title" fill="#6b83e8">Token Level Compressor（C4A）</text>
+  <text x="150" y="1144" class="note">把长上下文 token 压成少量 KV 槽位，并维护 kv_state / score_state；CSA 后续只从压缩缓存中取 Top-k。</text>
+  <rect x="190" y="1210" width="270" height="58" rx="12" class="blue"/>
+  <text x="325" y="1246" text-anchor="middle" class="label">Linear(KV proj)</text>
+  <text x="475" y="1245" class="small">[1, 2*head_dim]</text>
+  <rect x="190" y="1330" width="230" height="58" rx="12" class="purple"/>
+  <text x="305" y="1366" text-anchor="middle" class="label">kv_state</text>
+  <path d="M325 1268 V1330" class="arrow"/>
+  <rect x="540" y="1210" width="280" height="58" rx="12" class="blue"/>
+  <text x="680" y="1246" text-anchor="middle" class="label">Linear(Gate proj)</text>
+  <rect x="540" y="1330" width="110" height="58" rx="12" class="state"/>
+  <text x="595" y="1366" text-anchor="middle" class="label">APE</text>
+  <circle cx="720" cy="1359" r="28" class="blue"/>
+  <text x="720" y="1368" text-anchor="middle" class="label">+</text>
+  <rect x="765" y="1330" width="170" height="58" rx="12" class="purple"/>
+  <text x="850" y="1366" text-anchor="middle" class="label">score_state</text>
+  <path d="M680 1268 V1320" class="arrow"/>
+  <path d="M650 1359 H692" class="arrow"/>
+  <path d="M720 1387 V1430" class="arrow"/>
+  <rect x="625" y="1430" width="190" height="58" rx="12" class="purple"/>
+  <text x="720" y="1466" text-anchor="middle" class="label">softmax</text>
+  <path d="M420 1359 H520 V1459 H625" class="purpleLine"/>
+  <circle cx="520" cy="1459" r="28" class="green"/>
+  <text x="520" y="1468" text-anchor="middle" class="label">×</text>
+  <path d="M815 1459 H900 V1545 H440 V1388" class="purpleLine"/>
+  <rect x="230" y="1515" width="210" height="58" rx="12" class="blue"/>
+  <text x="335" y="1551" text-anchor="middle" class="label">sum</text>
+  <rect x="500" y="1515" width="210" height="58" rx="12" class="blue"/>
+  <text x="605" y="1551" text-anchor="middle" class="label">RMSNorm</text>
+  <rect x="770" y="1515" width="160" height="58" rx="12" class="blue"/>
+  <text x="850" y="1551" text-anchor="middle" class="label">RoPE</text>
+  <path d="M520 1487 V1544 H440" class="arrow"/>
+  <path d="M440 1544 H500" class="arrow"/>
+  <path d="M710 1544 H770" class="arrow"/>
+  <text x="795" y="1615" class="small">输出压缩 KV: [T, head_dim]</text>
+
+  <!-- KV caches and select -->
+  <rect x="1080" y="1065" width="610" height="580" rx="18" class="blackbox"/>
+  <text x="1110" y="1110" class="group-title" fill="#222">KV Cache 与稀疏选择</text>
+  <rect x="1140" y="1190" width="240" height="86" rx="14" class="red"/>
+  <text x="1260" y="1228" text-anchor="middle" class="label">KV cache</text>
+  <text x="1260" y="1256" text-anchor="middle" class="label">(compress)</text>
+  <text x="1145" y="1168" class="small">历史压缩槽位，长度可随上下文增长</text>
+  <rect x="1160" y="1330" width="200" height="70" rx="10" class="purplebox"/>
+  <text x="1260" y="1372" text-anchor="middle" class="small">kv_state / score_state</text>
+  <path d="M930 1544 H1260 V1400" class="purpleLine"/>
+  <path d="M930 1544 H1260 V1276" class="arrow"/>
+  <rect x="1445" y="1190" width="190" height="86" rx="14" class="red"/>
+  <text x="1540" y="1228" text-anchor="middle" class="label">KV cache</text>
+  <text x="1540" y="1256" text-anchor="middle" class="label">(window)</text>
+  <text x="1425" y="1168" class="small">最近 window_size=128</text>
+  <rect x="1465" y="1350" width="150" height="58" rx="12" class="orange"/>
+  <text x="1540" y="1386" text-anchor="middle" class="label">RoPE</text>
+  <rect x="1450" y="1450" width="180" height="58" rx="12" class="orange"/>
+  <text x="1540" y="1486" text-anchor="middle" class="label">RMSNorm</text>
+  <path d="M1540 1508 V1610 H1000" class="thin"/>
+  <path d="M1540 1408 V1450" class="arrow"/>
+  <path d="M1540 1350 V1276" class="arrow"/>
+  <rect x="1220" y="1510" width="330" height="68" rx="12" fill="#fff" stroke="#78b8ff" stroke-width="3"/>
+  <text x="1385" y="1553" text-anchor="middle" class="small" fill="#4d83d9">Select Top-k from compress cache</text>
+  <path d="M1380 1233 H1490 V1510 H1550" class="greenLine dashed"/>
+
+  <!-- Indexer -->
+  <rect x="1760" y="500" width="700" height="520" rx="18" class="greenbox"/>
+  <text x="1790" y="545" class="group-title" fill="#73b92d">Indexer</text>
+  <text x="1790" y="580" class="note">为当前 Q 估计历史压缩 KV 的相关性，生成 index_topk；只控制选择，不直接产出 attention value。</text>
+  <rect x="1845" y="640" width="260" height="58" rx="12" class="green"/>
+  <text x="1975" y="676" text-anchor="middle" class="label">Linear(Q up_proj)</text>
+  <text x="2118" y="676" class="small">[1, heads, head_dim]</text>
+  <rect x="1880" y="740" width="190" height="58" rx="12" class="green"/>
+  <text x="1975" y="776" text-anchor="middle" class="label">RoPE</text>
+  <rect x="1880" y="840" width="190" height="58" rx="12" class="green"/>
+  <text x="1975" y="876" text-anchor="middle" class="label">Rotate</text>
+  <rect x="1880" y="940" width="190" height="58" rx="12" class="green"/>
+  <text x="1975" y="976" text-anchor="middle" class="label">Quant</text>
+  <rect x="2160" y="940" width="190" height="58" rx="12" class="green"/>
+  <text x="2255" y="976" text-anchor="middle" class="label">Matmul</text>
+  <text x="2358" y="972" class="small">KV value</text>
+  <rect x="2160" y="840" width="190" height="58" rx="12" class="green"/>
+  <text x="2255" y="876" text-anchor="middle" class="label">ReLU</text>
+  <rect x="2160" y="740" width="190" height="58" rx="12" class="green"/>
+  <text x="2255" y="776" text-anchor="middle" class="label">Sum</text>
+  <rect x="2160" y="640" width="190" height="58" rx="12" class="green"/>
+  <text x="2255" y="676" text-anchor="middle" class="label">Top-k</text>
+  <rect x="1810" y="740" width="1" height="1" fill="none"/>
+  <rect x="1810" y="1125" width="260" height="58" rx="12" class="green"/>
+  <text x="1940" y="1161" text-anchor="middle" class="label">Linear(weights proj)</text>
+  <rect x="1880" y="1035" width="190" height="58" rx="12" class="green"/>
+  <text x="1975" y="1071" text-anchor="middle" class="label">Scale</text>
+  <path d="M1975 698 V740" class="arrow"/>
+  <path d="M1975 798 V840" class="arrow"/>
+  <path d="M1975 898 V940" class="arrow"/>
+  <path d="M2070 969 H2160" class="arrow"/>
+  <path d="M2255 940 V898" class="arrow"/>
+  <path d="M2255 840 V798" class="arrow"/>
+  <path d="M2255 740 V698" class="arrow"/>
+  <path d="M1975 1093 V1125" class="thin"/>
+  <path d="M1940 1125 V1093" class="arrow"/>
+  <path d="M2070 1064 H2120 V769 H2160" class="arrow"/>
+  <text x="2360" y="675" class="small">index_topk: [1, top_k]</text>
+  <path d="M2255 640 V520 H1410 V1510" class="greenLine dashed"/>
+
+  <!-- Attention -->
+  <rect x="1080" y="500" width="610" height="520" rx="18" class="soft"/>
+  <text x="1110" y="545" class="group-title" fill="#ed8a00">Sparse MQA Attention</text>
+  <text x="1110" y="580" class="note">输入由三类 KV 组成：窗口 KV、Indexer 选出的压缩 KV Top-k、可选 sink token。</text>
+  <rect x="1140" y="655" width="500" height="74" rx="14" class="orange"/>
+  <text x="1390" y="688" text-anchor="middle" class="label">Concat KV</text>
+  <text x="1390" y="716" text-anchor="middle" class="tiny" fill="#fff">window + selected compress + sink</text>
+  <rect x="1140" y="805" width="500" height="74" rx="14" class="orange"/>
+  <text x="1390" y="850" text-anchor="middle" class="label">Attention(MQA): softmax(QKᵀ / √d) V</text>
+  <rect x="1205" y="955" width="370" height="58" rx="12" class="orange"/>
+  <text x="1390" y="991" text-anchor="middle" class="label">O: [1, heads, head_dim]</text>
+  <path d="M1390 729 V805" class="arrow"/>
+  <path d="M1390 879 V955" class="arrow"/>
+  <path d="M1160 949 H1085 V842 H1140" class="arrow"/>
+  <text x="1170" y="926" class="small">Q</text>
+  <path d="M1540 1276 V729" class="arrow"/>
+  <text x="1555" y="755" class="small">window KV</text>
+  <path d="M1385 1510 V729" class="greenLine dashed"/>
+  <text x="1400" y="760" class="small">compress Top-k</text>
+  <text x="1110" y="640" class="small">Q 来自左侧 RoPE 后</text>
+
+  <!-- output path -->
+  <rect x="1760" y="1065" width="700" height="580" rx="18" class="soft"/>
+  <text x="1790" y="1110" class="group-title" fill="#ed8a00">输出投影与残差</text>
+  <rect x="1845" y="1190" width="260" height="58" rx="12" class="orange"/>
+  <text x="1975" y="1226" text-anchor="middle" class="label">RoPE (inverse)</text>
+  <rect x="1845" y="1310" width="260" height="58" rx="12" class="orange"/>
+  <text x="1975" y="1346" text-anchor="middle" class="label">Linear(O down_proj)</text>
+  <text x="2118" y="1346" class="small">[1, o_groups*o_lora_rank]</text>
+  <rect x="1845" y="1430" width="260" height="58" rx="12" class="orange"/>
+  <text x="1975" y="1466" text-anchor="middle" class="label">Linear(O up_proj)</text>
+  <text x="2118" y="1466" class="small">[1, hidden_size]</text>
+  <circle cx="2255" cy="1459" r="34" class="blue"/>
+  <text x="2255" y="1470" text-anchor="middle" class="label">+</text>
+  <rect x="2320" y="1430" width="110" height="58" rx="12" class="blue"/>
+  <text x="2375" y="1466" text-anchor="middle" class="label">hc_post</text>
+  <path d="M1975 1248 V1310" class="arrow"/>
+  <path d="M1975 1368 V1430" class="arrow"/>
+  <path d="M2105 1459 H2221" class="arrow"/>
+  <path d="M2289 1459 H2320" class="arrow"/>
+  <path d="M1575 984 H1780 V1219 H1845" class="arrow"/>
+  <path d="M210 248 V1459 H2221" class="thin dashed"/>
+  <text x="1990" y="1170" class="small">Attention 输出回到 hidden_size，再与残差相加</text>
+
+  <!-- mini tensors -->
+  <g>
+    <text x="1120" y="735" class="tiny">selected compress</text>
+    <rect x="1155" y="750" width="22" height="55" class="tensor"/><rect x="1184" y="750" width="22" height="55" class="tensor"/><rect x="1213" y="750" width="22" height="55" class="tensor"/>
+    <text x="1435" y="735" class="tiny">window</text>
+    <rect x="1450" y="750" width="22" height="55" class="tensor"/><rect x="1479" y="750" width="22" height="55" class="tensor"/>
+    <text x="1575" y="735" class="tiny">sink</text>
+    <rect x="1585" y="750" width="22" height="55" class="tensor"/>
+    <rect x="1210" y="1288" width="22" height="55" class="tensor"/><rect x="1239" y="1288" width="22" height="55" class="tensor"/><rect x="1268" y="1288" width="22" height="55" class="tensor"/><rect x="1297" y="1288" width="22" height="55" class="tensor"/>
+    <rect x="1495" y="1288" width="22" height="55" class="tensor"/><rect x="1524" y="1288" width="22" height="55" class="tensor"/>
+  </g>
+
+  <!-- legend -->
+  <rect x="120" y="1665" width="2340" height="70" rx="12" fill="#fafafa" stroke="#ddd"/>
+  <rect x="160" y="1685" width="34" height="24" class="orange"/><text x="205" y="1705" class="small">CSA 主算子</text>
+  <rect x="380" y="1685" width="34" height="24" class="blue"/><text x="425" y="1705" class="small">Compressor / Block 算子</text>
+  <rect x="700" y="1685" width="34" height="24" class="green"/><text x="745" y="1705" class="small">Indexer 算子</text>
+  <rect x="930" y="1685" width="34" height="24" class="red"/><text x="975" y="1705" class="small">KV Cache</text>
+  <rect x="1120" y="1685" width="34" height="24" class="purple"/><text x="1165" y="1705" class="small">状态缓存</text>
+  <path d="M1380 1698 H1450" class="greenLine dashed"/><text x="1465" y="1705" class="small">Top-k 索引控制流</text>
+  <path d="M1740 1698 H1810" class="arrow"/><text x="1825" y="1705" class="small">张量数据流</text>
+</svg>
